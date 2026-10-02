@@ -1,0 +1,10 @@
+.links {
+    text-align: left;
+}
+
+.links a,
+.links span {
+    display: block;
+    font-size: 48px;
+    margin-bottom: 24px;
+}
