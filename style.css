@@ -1,4 +1,12 @@
 .links {
+    clear: both;
+    width: 600px;
+    box-sizing: border-box;
+    padding: 20px;
+    margin-left: 0;
+    margin-right: auto;
+    border: 2px solid #FFB366;
+    border-radius: 10px;
     text-align: left;
 }
 
