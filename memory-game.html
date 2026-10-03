@@ -113,12 +113,10 @@ let timer2 = setInterval (function(){
 function click(e)
 {
 	if(timer)
-	{
-		clearTimeout(timer);
-		
-		judge();
-	}
-	
+{
+    clearTimeout(timer);
+    hideCards();
+}	
 	let elm = e.target;
 	//elm.style.visibility="hidden";
 	elm.innerHTML = cards[elm.index];
@@ -138,26 +136,39 @@ function click(e)
 	}
 }
 
+
+	function hideCards()
+{
+    if (first.innerHTML == second.innerHTML)
+    {
+        first.style.visibility="hidden";
+        second.style.visibility="hidden";
+    }
+    else
+    {
+        first.innerHTML = "";
+        second.innerHTML = "";
+    }
+
+    first = null;
+    second = null;
+    timer = null;
+}
 //判定の関数
 function judge()
 {
-	if (first.innerHTML == second.innerHTML)
-		{
-			first.style.visibility="hidden";
-			second.style.visibility="hidden";
-			mekuri+=2;
-			if(mekuri == cards.length) clearInterval(timer2);
-		}
-		else
-		{
-			first.innerHTML = "";
-			second.innerHTML = "";
-		}
-		first = null;
-		second = null;
-		timer = null;
-}
+    if (first.innerHTML == second.innerHTML)
+    {
+        mekuri+=2;
+        
+        if(mekuri == cards.length)
+        {
+            clearInterval(timer2);
+        }
+    }
 
+    timer = setTimeout(hideCards, 1000);
+}
 
 </script>
 
