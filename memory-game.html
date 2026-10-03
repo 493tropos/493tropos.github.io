@@ -34,9 +34,7 @@
 .card {
 	width : 70px;
 	height : 80px;
-	//vertical-align:middle;
-	line-height:100%
-	//line-height : 80px;
+	line-height:100%;
 	text-align : center;
 	border : 2px solid #aaa;
 	border-radius : 5px;
@@ -165,6 +163,10 @@ for(let i = 0; i < selectedCards.length; i++)
 	let columns = 6;
 	let pairCount = 6;
 
+let field = document.getElementById("field");
+	let taken = document.getElementById("taken");
+
+	
 makeCards();
 shuffleCards();
 createCards();
@@ -207,9 +209,6 @@ columnSelect.onchange = function()
 };
 	
 	
-let field = document.getElementById("field");
-	let taken = document.getElementById("taken");
-	createCards();
 
 	function createCards()
 {
