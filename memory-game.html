@@ -1,3 +1,4 @@
+```html
 //javascriptで神経衰弱
 
 <!DOCTYPE html>
@@ -6,12 +7,12 @@
 <meta charset="UTF-8">
 <title>神経衰弱</title>
 
-	<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
 
-	
 <style>
 #clock{font-size:30px;}
 #field{ width : 600px; }
+
 .card {
 	width : 70px;
 	height : 80px;
@@ -24,7 +25,7 @@
 	font-size : 30px;
 	margin:8px;
 	float : left;
-	}
+}
 </style>
 
 </head>
@@ -34,152 +35,236 @@
 <div id="clock"></div>
 <div id="field">
 </div>
+
 <script>
 
-//min~maxの整数乱数を作る関数
+
+//==================================================
+// ① 乱数を作る関数
+//==================================================
+
+// min以上、max以下の整数をランダムに1つ返す
 function rand(min,max)
 {
 	return Math.floor(Math.random()*(max-min+1)+min);
 }
 
+
+//==================================================
+// ② カードの候補
+//==================================================
+
 let candidates = [
 "119","121","133","143","161","169","187","203","209","217","221","247","253","259","287","289","299","301","319","323","329","341","343","361","371","377","391","403","407","413","427","437","451","469","473","481","493","497","511","517","527","529","533","539","551","553","559","581","583","589","611","623","629","637","649","667","671","679","689","697","703","707","713","721","731","737","749","763","767","779","781","791","793","799","803","817","833","841","847","851","869","871","889","893","899","901","913","917","923","931","943","949","959","961","973","979","989",
 ];
 
-	let selectedCards = [];
+
+//==================================================
+// ③ 候補の中から6種類をランダムに選ぶ
+//==================================================
+
+let selectedCards = [];
 
 for(let i = 0; i < 6; i++)
 {
-    let selected;
+	let selected;
 
-    do
-    {
-        let r = rand(0, candidates.length - 1);
-        selected = candidates[r];
-    }
-    while(selectedCards.includes(selected));
+	do
+	{
+		let r = rand(0, candidates.length - 1);
+		selected = candidates[r];
+	}
+	while(selectedCards.includes(selected));
 
-    selectedCards.push(selected);
+	selectedCards.push(selected);
 }
 
-console.log(selectedCards);
+
+//==================================================
+// ④ 選んだ6種類を、それぞれ2枚ずつにする
+//==================================================
 
 let cards = [];
 
 for(let i = 0; i < selectedCards.length; i++)
 {
-    cards.push(selectedCards[i]);
-    cards.push(selectedCards[i]);
+	cards.push(selectedCards[i]);
+	cards.push(selectedCards[i]);
 }
 
-	console.log(cards.length);
-	
-//シャッフルのアルゴリズム
-for(let i = cards.length-1; i>0; i--)
+
+//==================================================
+// ⑤ 12枚のカードをシャッフルする
+//==================================================
+
+for(let i = cards.length-1; i > 0; i--)
 {
 	let r = rand(0,i);
+
 	let tmp = cards[i];
 	cards[i] = cards[r];
 	cards[r] = tmp;
 }
 
+
+//==================================================
+// ⑥ HTML上にカードを12個作る
+//==================================================
+
 let field = document.getElementById("field");
 
-for(let i=0 ; i<cards.length; i++)
+for(let i = 0; i < cards.length; i++)
 {
 	let elm = document.createElement("div");
-	
+
 	elm.className = "card";
-	elm.innerHTML = ""; //cards[i];
+	elm.innerHTML = "";
 	elm.index = i;
 	elm.onclick = click;
+
 	field.appendChild(elm);
-	
 }
 
+
+//==================================================
+// ⑦ ゲームの状態を記録する変数
+//==================================================
+
+// 1枚目に選んだカード
 let first = null;
-let second =null;
+
+// 2枚目に選んだカード
+let second = null;
+
+// カードを隠すためのタイマー
 let timer = null;
 
-let count=0;
+// 揃ったカードの枚数
 let mekuri = 0;
+
+
+//==================================================
+// ⑧ 経過時間の表示
+//==================================================
+
+let count = 0;
 let clock = document.getElementById("clock");
-let timer2 = setInterval (function(){
+
+let timer2 = setInterval(function()
+{
 	clock.innerText = `経過時間:${(count++/10).toFixed(1)}秒`;
-	}
+}
 ,100);
 
-//クリックの処理
+
+//==================================================
+// ⑨ カードをクリックしたときの処理
+//==================================================
+
 function click(e)
 {
+	// 前の2枚を隠す待ち時間中にクリックされた場合
 	if(timer)
-{
-    clearTimeout(timer);
-    hideCards();
-}	
+	{
+		clearTimeout(timer);
+		hideCards();
+	}
+
+	// 今クリックされたカードを取得
 	let elm = e.target;
-	//elm.style.visibility="hidden";
+
+	// カードの数字を表示
 	elm.innerHTML = cards[elm.index];
-	
-	if (!first)
+
+
+	// まだ1枚目が選ばれていない
+	if(!first)
 	{
 		first = elm;
 	}
+
+	// 1枚目と同じカードをもう一度クリックした
 	else if(first.index == elm.index)
 	{
 		return;
 	}
-else
+
+	// 2枚目が選ばれた
+	else
+	{
+		second = elm;
+
+		// すぐに2枚を判定する
+		judge();
+	}
+}
+
+
+//==================================================
+// ⑩ カードを隠す・裏返す処理
+//==================================================
+
+function hideCards()
 {
-    second = elm;
-    judge();
-}
+	// 2枚が同じだった場合
+	if(first.innerHTML == second.innerHTML)
+	{
+		first.style.visibility = "hidden";
+		second.style.visibility = "hidden";
+	}
+
+	// 2枚が違った場合
+	else
+	{
+		first.innerHTML = "";
+		second.innerHTML = "";
+	}
+
+	// 次の2枚を選べるように状態をリセット
+	first = null;
+	second = null;
+	timer = null;
 }
 
 
-	function hideCards()
-{
-    if (first.innerHTML == second.innerHTML)
-    {
-        first.style.visibility="hidden";
-        second.style.visibility="hidden";
-    }
-    else
-    {
-        first.innerHTML = "";
-        second.innerHTML = "";
-    }
+//==================================================
+// ⑪ 2枚のカードを判定する処理
+//==================================================
 
-    first = null;
-    second = null;
-    timer = null;
-}
-//判定の関数
 function judge()
 {
-    if (first.innerHTML == second.innerHTML)
-    {
-        mekuri+=2;
-        
-        if(mekuri == cards.length)
-        {
-            clearInterval(timer2);
-        }
-    }
+	// 2枚が同じだった場合
+	if(first.innerHTML == second.innerHTML)
+	{
+		// 揃ったカードを2枚増やす
+		mekuri += 2;
 
-    timer = setTimeout(hideCards, 1000);
+		// すべて揃った場合
+		if(mekuri == cards.length)
+		{
+			clearInterval(timer2);
+		}
+	}
+
+	// カードを隠す処理は1秒後
+	timer = setTimeout(hideCards, 1000);
 }
+
 
 </script>
 
-    <div class="links">    
-		<div class="links-title">ページ一覧</div>
-        <a href="index.html">トップページ</a>
-		<a href="factor-clock.html">素因数分解・時計</a>
-        <span>神経衰弱</span>
-    </div>
-    
-	
+
+<div class="links">
+
+	<div class="links-title">ページ一覧</div>
+
+	<a href="index.html">トップページ</a>
+	<a href="factor-clock.html">素因数分解・時計</a>
+	<span>神経衰弱</span>
+
+</div>
+
+
 </body>
 </html>
-
+```
