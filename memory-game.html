@@ -163,6 +163,9 @@ elm.style.top = Math.floor(i / columns) * 100 + "px";
 
 	function arrangeCards()
 {
+
+	let rows = cards.length / columns;
+	
     for(let i = 0; i < cards.length; i++)
     {
         let elm = field.children[i];
