@@ -192,7 +192,14 @@ timer = null;
 
 mekuri = 0;
 	count = 0;
-	clock.innerText = "経過時間:0.0秒";
+clock.innerText = "経過時間:0.0秒";
+
+clearInterval(timer2);
+
+timer2 = setInterval(function()
+{
+    clock.innerText = `経過時間:${(count++/10).toFixed(1)}秒`;
+},100);
 	
     makeCards();
 
