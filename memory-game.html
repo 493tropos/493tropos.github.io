@@ -344,6 +344,10 @@ function hideCards()
 	// 2枚が同じだった場合
 	if (first.innerHTML == second.innerHTML)
 {
+
+first.onclick = null;
+second.onclick = null;
+	
     taken.appendChild(first);
     taken.appendChild(second);
 
