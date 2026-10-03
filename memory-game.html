@@ -160,6 +160,17 @@ elm.style.top = Math.floor(i / columns) * 100 + "px";
 	field.appendChild(elm);
 }
 
+	function arrangeCards()
+{
+    for(let i = 0; i < cards.length; i++)
+    {
+        let elm = field.children[i];
+
+        elm.style.left = (i % columns) * 90 + "px";
+        elm.style.top = Math.floor(i / columns) * 100 + "px";
+    }
+}
+
 
 //==================================================
 // ⑦ ゲームの状態を記録する変数
