@@ -88,9 +88,9 @@
     </select>
 </div>
 	
+<div id="clock"></div>
 <div id="field"></div>
 <div id="taken"></div>
-
 <script>
 
 
@@ -149,16 +149,31 @@ for(let i = 0; i < selectedCards.length; i++)
 	cards.push(selectedCards[i]);
 }
 }
-makeCards();
 
+	function shuffleCards()
+{
+    for(let i = cards.length-1; i > 0; i--)
+    {
+        let r = rand(0,i);
+
+        let tmp = cards[i];
+        cards[i] = cards[r];
+        cards[r] = tmp;
+    }
+}
+	
+	let columns = 6;
+	let pairCount = 6;
+
+makeCards();
+shuffleCards();
+createCards();
 
 //==================================================
 // ⑥ HTML上にカードを12個作る
 //==================================================
 
-	let columns = 6;
-	let pairCount = 6;
-let pairSelect = document.querySelector("#pairs select");
+	let pairSelect = document.querySelector("#pairs select");
 
 pairSelect.onchange = function()
 {
@@ -179,20 +194,7 @@ mekuri = 0;
 	
     makeCards();
 
-//==================================================
-// ⑤ 12枚のカードをシャッフルする
-//==================================================
-
-for(let i = cards.length-1; i > 0; i--)
-{
-	let r = rand(0,i);
-
-	let tmp = cards[i];
-	cards[i] = cards[r];
-	cards[r] = tmp;
-}
-
-	
+shuffleCards();	
     createCards();
 };	
 	
@@ -207,6 +209,7 @@ columnSelect.onchange = function()
 	
 let field = document.getElementById("field");
 	let taken = document.getElementById("taken");
+	createCards();
 
 	function createCards()
 {
@@ -247,6 +250,7 @@ taken.style.height = takenRows * 100 + "px";
 
 function arrangeTakenCards()
 {
+	let takenColumns = Math.floor(columns / 2) * 2;
     let takenCards = taken.children;
 
     for(let i = 0; i < takenCards.length; i++)
