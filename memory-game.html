@@ -24,11 +24,11 @@
     border : 2px solid #aaa;
     box-sizing : border-box;
     margin-top : 20px;
+		position : relative;
 }
 
-	#taken .card {
-    position : static;
-    float : left;
+#taken .card {
+    position : absolute;
 }
 	
 .card {
@@ -51,16 +51,44 @@
 
 <body>
 
-<div id="clock"></div>
-	<div id="columns">
-    横に並べる枚数：
-    <button>2</button>
-    <button>4</button>
-    <button>6</button>
-</div>
 
-<div id="field">
+<div id="pairs">
+    組数：
+    <select>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>6</option>
+        <option>7</option>
+        <option>8</option>
+        <option>9</option>
+        <option>10</option>
+    </select>
 </div>
+	
+<div id="columns">
+    横に並べる枚数：
+    <select>
+        <option>2</option>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
+        <option>6</option>
+        <option>7</option>
+        <option>8</option>
+        <option>9</option>
+        <option>10</option>
+        <option>11</option>
+        <option>12</option>
+        <option>13</option>
+        <option>14</option>
+        <option>15</option>
+        <option>16</option>
+    </select>
+</div>
+	
+<div id="field"></div>
 <div id="taken"></div>
 
 <script>
@@ -89,10 +117,12 @@ let candidates = [
 //==================================================
 // ③ 候補の中から6種類をランダムに選ぶ
 //==================================================
-
+let cards = [];
+	function makeCards()
+{
 let selectedCards = [];
 
-for(let i = 0; i < 6; i++)
+	for(let i = 0; i < pairCount; i++)
 {
 	let selected;
 
@@ -111,14 +141,43 @@ for(let i = 0; i < 6; i++)
 // ④ 選んだ6種類を、それぞれ2枚ずつにする
 //==================================================
 
-let cards = [];
 
+cards = [];
 for(let i = 0; i < selectedCards.length; i++)
 {
 	cards.push(selectedCards[i]);
 	cards.push(selectedCards[i]);
 }
+}
+makeCards();
 
+
+//==================================================
+// ⑥ HTML上にカードを12個作る
+//==================================================
+
+	let columns = 6;
+	let pairCount = 6;
+let pairSelect = document.querySelector("#pairs select");
+
+pairSelect.onchange = function()
+{
+    pairCount = Number(pairSelect.value);
+
+    field.innerHTML = "";
+taken.innerHTML = "";
+	
+first = null;
+second = null;
+
+clearTimeout(timer);
+timer = null;
+
+mekuri = 0;
+	count = 0;
+	clock.innerText = "経過時間:0.0秒";
+	
+    makeCards();
 
 //==================================================
 // ⑤ 12枚のカードをシャッフルする
@@ -133,21 +192,25 @@ for(let i = cards.length-1; i > 0; i--)
 	cards[r] = tmp;
 }
 
+	
+    createCards();
+};	
+	
+let columnSelect = document.querySelector("#columns select");
 
-//==================================================
-// ⑥ HTML上にカードを12個作る
-//==================================================
-
-	let columns = 6;
-document.querySelector("#columns button:nth-of-type(1)").onclick = function(){ columns = 2; arrangeCards(); };
-document.querySelector("#columns button:nth-of-type(2)").onclick = function(){ columns = 4; arrangeCards(); };
-document.querySelector("#columns button:nth-of-type(3)").onclick = function(){ columns = 6; arrangeCards(); };
+columnSelect.onchange = function()
+{
+    columns = Number(columnSelect.value);
+    arrangeCards();
+};
 	
 	
 let field = document.getElementById("field");
 	let taken = document.getElementById("taken");
 
-for(let i = 0; i < cards.length; i++)
+	function createCards()
+{
+    for(let i = 0; i < cards.length; i++)
 {
 	let elm = document.createElement("div");
 
@@ -161,11 +224,18 @@ elm.style.top = Math.floor(i / columns) * 100 + "px";
 	field.appendChild(elm);
 }
 
+}
+
 	function arrangeCards()
 {
 
-	let rows = cards.length / columns;
+let rows = Math.ceil(cards.length / columns);
 	field.style.height = rows * 100 + "px";
+let takenColumns = Math.floor(columns / 2) * 2;
+	let takenRows = Math.ceil(cards.length / takenColumns);
+
+taken.style.height = takenRows * 100 + "px";
+	
     for(let i = 0; i < cards.length; i++)
     {
         let elm = field.children[i];
@@ -175,6 +245,17 @@ elm.style.top = Math.floor(i / columns) * 100 + "px";
     }
 }
 
+function arrangeTakenCards()
+{
+    let takenCards = taken.children;
+
+    for(let i = 0; i < takenCards.length; i++)
+    {
+        takenCards[i].style.left = (i % takenColumns) * 90 + "px";
+        takenCards[i].style.top = Math.floor(i / takenColumns) * 100 + "px";
+    }
+}
+	
 
 //==================================================
 // ⑦ ゲームの状態を記録する変数
@@ -261,6 +342,8 @@ function hideCards()
 {
     taken.appendChild(first);
     taken.appendChild(second);
+
+	arrangeTakenCards();
 }
 
 	// 2枚が違った場合
