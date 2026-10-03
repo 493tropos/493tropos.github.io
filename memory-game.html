@@ -248,8 +248,8 @@ let takenColumns = Math.floor(columns / 2) * 2;
 
 taken.style.height = takenRows * 100 + "px";
 	
-    for(let i = 0; i < cards.length; i++)
-    {
+    for(let i = 0; i < field.children.length; i++)
+	{
         let elm = field.children[i];
 
         elm.style.left = (i % columns) * 90 + "px";
