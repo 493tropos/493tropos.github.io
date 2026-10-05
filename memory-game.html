@@ -1,416 +1,642 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="UTF-8">
-<title>神経衰弱</title>
+    <meta charset="UTF-8">
+    <title>神経衰弱</title>
 
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 
-<style>
-#clock{font-size:30px;}
-#field {
-    width : 600px;
-    height : 200px;
-    border : 2px solid #aaa;
-    box-sizing : border-box;
-    position : relative;
-}
-	#taken {
-    width : 600px;
-    height : 200px;
-    border : 2px solid #aaa;
-    box-sizing : border-box;
-    margin-top : 20px;
-		position : relative;
-}
+    <style>
 
-#taken .card {
-    position : absolute;
-}
-	
-.card {
-	width : 70px;
-	height : 80px;
-	line-height:100%;
-	text-align : center;
-	border : 2px solid #aaa;
-	border-radius : 5px;
-	font-size : 30px;
-	margin:8px;
-	float : left;
-	position : absolute;
-}
-</style>
+        /* =========================================
+           時計
+           ========================================= */
 
+        #clock {
+            font-size: 30px;
+        }
+
+
+        /* =========================================
+           カードを並べる場所
+           ========================================= */
+
+        #field {
+            width: 600px;
+            height: 200px;
+            border: 2px solid #aaa;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+
+        /* =========================================
+           揃ったカードを置く場所
+           ========================================= */
+
+        #taken {
+            width: 600px;
+            height: 200px;
+            border: 2px solid #aaa;
+            box-sizing: border-box;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        /* 揃ったカードも絶対位置で並べる */
+        #taken .card {
+            position: absolute;
+        }
+
+
+        /* =========================================
+           カードそのものの見た目
+           ========================================= */
+
+        .card {
+            width: 70px;
+            height: 80px;
+            line-height: 100%;
+            text-align: center;
+            border: 2px solid #aaa;
+            border-radius: 5px;
+            font-size: 30px;
+            margin: 8px;
+            float: left;
+            position: absolute;
+        }
+
+    </style>
 </head>
+
 
 <body>
 
+    <!-- =========================================
+         組数を選択する
+         ========================================= -->
+
+    <div id="pairs">
+        組数：
+        <select>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
+        </select>
+    </div>
+
+
+    <!-- =========================================
+         横に並べるカード枚数を選択する
+         ========================================= -->
+
+    <div id="columns">
+        横に並べる枚数：
+        <select>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+            <option>6</option>
+            <option>7</option>
+            <option>8</option>
+            <option>9</option>
+            <option>10</option>
+            <option>11</option>
+            <option>12</option>
+            <option>13</option>
+            <option>14</option>
+            <option>15</option>
+            <option>16</option>
+        </select>
+    </div>
+
+
+    <!-- 経過時間を表示する場所 -->
+    <div id="clock"></div>
+
+    <!-- 裏返ったカードを置く場所 -->
+    <div id="field"></div>
+
+    <!-- 揃ったカードを移動する場所 -->
+    <div id="taken"></div>
+
+
+    <script>
+
+        // ==================================================
+        // ① 乱数を作る関数
+        // ==================================================
+
+        // min以上、max以下の整数をランダムに1つ返す
+        function rand(min, max)
+        {
+            return Math.floor(Math.random() * (max - min + 1) + min);
+        }
+
+
+        // ==================================================
+        // ② カードに使う数字の候補
+        // ==================================================
+
+        // この中から、ゲームで使う数字をランダムに選ぶ
+        let candidates = [
+            "119", "121", "133", "143", "161", "169", "187",
+            "203", "209", "217", "221", "247", "253", "259",
+            "287", "289", "299", "301", "319", "323", "329",
+            "341", "343", "361", "371", "377", "391", "403",
+            "407", "413", "427", "437", "451", "469", "473",
+            "481", "493", "497", "511", "517", "527", "529",
+            "533", "539", "551", "553", "559", "581", "583",
+            "589", "611", "623", "629", "637", "649", "667",
+            "671", "679", "689", "697", "703", "707", "713",
+            "721", "731", "737", "749", "763", "767", "779",
+            "781", "791", "793", "799", "803", "817", "833",
+            "841", "847", "851", "869", "871", "889", "893",
+            "899", "901", "913", "917", "923", "931", "943",
+            "949", "959", "961", "973", "979", "989"
+        ];
 
-<div id="pairs">
-    組数：
-    <select>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-        <option>6</option>
-        <option>7</option>
-        <option>8</option>
-        <option>9</option>
-        <option>10</option>
-    </select>
-</div>
-	
-<div id="columns">
-    横に並べる枚数：
-    <select>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-        <option>6</option>
-        <option>7</option>
-        <option>8</option>
-        <option>9</option>
-        <option>10</option>
-        <option>11</option>
-        <option>12</option>
-        <option>13</option>
-        <option>14</option>
-        <option>15</option>
-        <option>16</option>
-    </select>
-</div>
-	
-<div id="clock"></div>
-<div id="field"></div>
-<div id="taken"></div>
-<script>
-
-
-//==================================================
-// ① 乱数を作る関数
-//==================================================
-
-// min以上、max以下の整数をランダムに1つ返す
-function rand(min,max)
-{
-	return Math.floor(Math.random()*(max-min+1)+min);
-}
-
-
-//==================================================
-// ② カードの候補
-//==================================================
-
-let candidates = [
-"119","121","133","143","161","169","187","203","209","217","221","247","253","259","287","289","299","301","319","323","329","341","343","361","371","377","391","403","407","413","427","437","451","469","473","481","493","497","511","517","527","529","533","539","551","553","559","581","583","589","611","623","629","637","649","667","671","679","689","697","703","707","713","721","731","737","749","763","767","779","781","791","793","799","803","817","833","841","847","851","869","871","889","893","899","901","913","917","923","931","943","949","959","961","973","979","989",
-];
-
-
-//==================================================
-// ③ 候補の中から6種類をランダムに選ぶ
-//==================================================
-let cards = [];
-	function makeCards()
-{
-let selectedCards = [];
-
-	for(let i = 0; i < pairCount; i++)
-{
-	let selected;
-
-	do
-	{
-		let r = rand(0, candidates.length - 1);
-		selected = candidates[r];
-	}
-	while(selectedCards.includes(selected));
-
-	selectedCards.push(selected);
-}
-
-
-//==================================================
-// ④ 選んだ6種類を、それぞれ2枚ずつにする
-//==================================================
-
-
-cards = [];
-for(let i = 0; i < selectedCards.length; i++)
-{
-	cards.push(selectedCards[i]);
-	cards.push(selectedCards[i]);
-}
-}
-
-	function shuffleCards()
-{
-    for(let i = cards.length-1; i > 0; i--)
-    {
-        let r = rand(0,i);
-
-        let tmp = cards[i];
-        cards[i] = cards[r];
-        cards[r] = tmp;
-    }
-}
-	
-	let columns = 6;
-	let pairCount = 6;
-
-let field = document.getElementById("field");
-	let taken = document.getElementById("taken");
-
-	
-makeCards();
-shuffleCards();
-createCards();
-
-//==================================================
-// ⑥ HTML上にカードを12個作る
-//==================================================
-
-	let pairSelect = document.querySelector("#pairs select");
-
-pairSelect.onchange = function()
-{
-    pairCount = Number(pairSelect.value);
-
-    field.innerHTML = "";
-taken.innerHTML = "";
-	
-first = null;
-second = null;
-
-clearTimeout(timer);
-timer = null;
-
-mekuri = 0;
-	count = 0;
-clock.innerText = "経過時間:0.0秒";
-
-clearInterval(timer2);
-
-timer2 = setInterval(function()
-{
-    clock.innerText = `経過時間:${(count++/10).toFixed(1)}秒`;
-},100);
-	
-    makeCards();
-
-shuffleCards();	
-    createCards();
-	arrangeCards();
-};	
-	
-let columnSelect = document.querySelector("#columns select");
-
-columnSelect.onchange = function()
-{
-    columns = Number(columnSelect.value);
-    arrangeCards();
-	console.log(columns);
-	arrangeTakenCards();
-};
-	
-	
-
-	function createCards()
-{
-    for(let i = 0; i < cards.length; i++)
-{
-	let elm = document.createElement("div");
-
-	elm.className = "card";
-	elm.innerHTML = "";
-	elm.index = i;
-	elm.style.left = (i % columns) * 90 + "px";
-elm.style.top = Math.floor(i / columns) * 100 + "px";
-	elm.onclick = click;
-
-	field.appendChild(elm);
-}
-
-}
-
-	function arrangeCards()
-{
-
-let rows = Math.ceil(cards.length / columns);
-	field.style.height = rows * 100 + "px";
-let takenColumns = Math.floor(columns / 2) * 2;
-	let takenRows = Math.ceil(cards.length / takenColumns);
-
-taken.style.height = takenRows * 100 + "px";
-	
-    for(let i = 0; i < field.children.length; i++)
-	{
-        let elm = field.children[i];
-
-        elm.style.left = (i % columns) * 90 + "px";
-        elm.style.top = Math.floor(i / columns) * 100 + "px";
-    }
-}
-
-function arrangeTakenCards()
-{
-	let takenColumns = Math.floor(columns / 2) * 2;
-    let takenCards = taken.children;
-
-    for(let i = 0; i < takenCards.length; i++)
-    {
-        takenCards[i].style.left = (i % takenColumns) * 90 + "px";
-        takenCards[i].style.top = Math.floor(i / takenColumns) * 100 + "px";
-    }
-}
-	
-
-//==================================================
-// ⑦ ゲームの状態を記録する変数
-//==================================================
-
-// 1枚目に選んだカード
-let first = null;
-
-// 2枚目に選んだカード
-let second = null;
-
-// カードを隠すためのタイマー
-let timer = null;
-
-// 揃ったカードの枚数
-let mekuri = 0;
-
-
-//==================================================
-// ⑧ 経過時間の表示
-//==================================================
-
-let count = 0;
-let clock = document.getElementById("clock");
-
-let timer2 = setInterval(function()
-{
-	clock.innerText = `経過時間:${(count++/10).toFixed(1)}秒`;
-}
-,100);
-
-
-//==================================================
-// ⑨ カードをクリックしたときの処理
-//==================================================
-
-function click(e)
-{
-	// 前の2枚を隠す待ち時間中にクリックされた場合
-	if(timer)
-	{
-		clearTimeout(timer);
-		hideCards();
-	}
-
-	// 今クリックされたカードを取得
-	let elm = e.target;
-
-	// カードの数字を表示
-	elm.innerHTML = cards[elm.index];
-
-
-	// まだ1枚目が選ばれていない
-	if(!first)
-	{
-		first = elm;
-	}
-
-	// 1枚目と同じカードをもう一度クリックした
-	else if(first.index == elm.index)
-	{
-		return;
-	}
-
-	// 2枚目が選ばれた
-	else
-	{
-		second = elm;
-
-		// すぐに2枚を判定する
-		judge();
-	}
-}
-
-
-//==================================================
-// ⑩ カードを隠す・裏返す処理
-//==================================================
-
-function hideCards()
-{
-	// 2枚が同じだった場合
-	if (first.innerHTML == second.innerHTML)
-{
-
-    taken.appendChild(first);
-    taken.appendChild(second);
-
-	arrangeTakenCards();
-}
-
-	// 2枚が違った場合
-	else
-	{
-		first.innerHTML = "";
-		second.innerHTML = "";
-	}
-
-	// 次の2枚を選べるように状態をリセット
-	first = null;
-	second = null;
-	timer = null;
-}
-
-
-//==================================================
-// ⑪ 2枚のカードを判定する処理
-//==================================================
-
-function judge()
-{
-	// 2枚が同じだった場合
-	if(first.innerHTML == second.innerHTML)
-	{
-		// 揃ったカードを2枚増やす
-		mekuri += 2;
-
-		first.onclick = null;
-second.onclick = null;
-
-		// すべて揃った場合
-		if(mekuri == cards.length)
-		{
-			clearInterval(timer2);
-		}
-	}
-
-	// カードを隠す処理は1秒後
-	timer = setTimeout(hideCards, 1000);
-}
-
-
-</script>
-
-
-<div class="links">
-
-	<div class="links-title">ページ一覧</div>
-
-	<a href="index.html">トップページ</a>
-	<a href="factor-clock.html">素因数分解・時計</a>
-	<span>神経衰弱</span>
-
-</div>
 
+        // ==================================================
+        // ③ ゲームで使うカードを作る
+        // ==================================================
+
+        // 選ばれたカードを最終的に入れる配列
+        let cards = [];
+
+
+        // pairCountで指定された組数だけ数字を選ぶ
+        function makeCards()
+        {
+            let selectedCards = [];
+
+
+            // 必要な組数になるまで数字をランダムに選ぶ
+            for(let i = 0; i < pairCount; i++)
+            {
+                let selected;
+
+
+                // すでに選ばれている数字と重ならないようにする
+                do
+                {
+                    let r = rand(0, candidates.length - 1);
+                    selected = candidates[r];
+                }
+                while(selectedCards.includes(selected));
+
+
+                selectedCards.push(selected);
+            }
+
+
+            // 配列をいったん空にする
+            cards = [];
+
+
+            // 選んだ数字を、それぞれ2枚ずつカードにする
+            for(let i = 0; i < selectedCards.length; i++)
+            {
+                cards.push(selectedCards[i]);
+                cards.push(selectedCards[i]);
+            }
+        }
+
+
+        // ==================================================
+        // ④ カードをシャッフルする
+        // ==================================================
+
+        // cards配列の順番をランダムに入れ替える
+        function shuffleCards()
+        {
+            for(let i = cards.length - 1; i > 0; i--)
+            {
+                let r = rand(0, i);
+
+                let tmp = cards[i];
+                cards[i] = cards[r];
+                cards[r] = tmp;
+            }
+        }
+
+
+        // ==================================================
+        // ⑤ ゲームの基本設定
+        // ==================================================
+
+        // 横に並べるカード枚数
+        let columns = 6;
+
+        // 最初に作る組数
+        let pairCount = 6;
+
+
+        // HTML上のカード置き場を取得
+        let field = document.getElementById("field");
+
+        // HTML上の揃ったカード置き場を取得
+        let taken = document.getElementById("taken");
+
+
+        // 最初のゲームを作る
+        makeCards();
+        shuffleCards();
+        createCards();
+
+
+        // ==================================================
+        // ⑥ 組数を変更したときの処理
+        // ==================================================
+
+        let pairSelect = document.querySelector("#pairs select");
+
+
+        pairSelect.onchange = function()
+        {
+            // 選択された組数を取得
+            pairCount = Number(pairSelect.value);
+
+
+            // 画面上のカードをすべて消す
+            field.innerHTML = "";
+            taken.innerHTML = "";
+
+
+            // 選択中のカード情報をリセット
+            first = null;
+            second = null;
+
+
+            // カードを隠すためのタイマーを解除
+            clearTimeout(timer);
+            timer = null;
+
+
+            // 揃ったカードの枚数をリセット
+            mekuri = 0;
+
+
+            // 経過時間をリセット
+            count = 0;
+            clock.innerText = "経過時間:0.0秒";
+
+
+            // 古い時計を止める
+            clearInterval(timer2);
+
+
+            // 新しいゲームの時計を開始
+            timer2 = setInterval(function()
+            {
+                clock.innerText =
+                    `経過時間:${(count++ / 10).toFixed(1)}秒`;
+            }, 100);
+
+
+            // 新しい組数でカードを作り直す
+            makeCards();
+            shuffleCards();
+            createCards();
+
+            // カードの位置と高さを整える
+            arrangeCards();
+        };
+
+
+        // ==================================================
+        // ⑦ 横に並べる枚数を変更したときの処理
+        // ==================================================
+
+        let columnSelect = document.querySelector("#columns select");
+
+
+        columnSelect.onchange = function()
+        {
+            // 選択された横の枚数を取得
+            columns = Number(columnSelect.value);
+
+
+            // 表側のカードを並べ直す
+            arrangeCards();
+
+
+            // 揃ったカードも並べ直す
+            arrangeTakenCards();
+        };
+
+
+        // ==================================================
+        // ⑧ HTML上にカードを作る
+        // ==================================================
+
+        function createCards()
+        {
+            // cards配列に入っている枚数だけカードを作る
+            for(let i = 0; i < cards.length; i++)
+            {
+                // 新しいdiv要素を作る
+                let elm = document.createElement("div");
+
+
+                // カードとして扱うためのclass名を設定
+                elm.className = "card";
+
+
+                // 最初は数字を表示しない
+                elm.innerHTML = "";
+
+
+                // このカードがcards配列の何番目かを記録
+                elm.index = i;
+
+
+                // 横方向の位置を決める
+                elm.style.left = (i % columns) * 90 + "px";
+
+
+                // 縦方向の位置を決める
+                elm.style.top = Math.floor(i / columns) * 100 + "px";
+
+
+                // クリックされたらclick関数を実行
+                elm.onclick = click;
+
+
+                // fieldの中にカードを追加
+                field.appendChild(elm);
+            }
+        }
+
+
+        // ==================================================
+        // ⑨ 表側のカードを並べ直す
+        // ==================================================
+
+        function arrangeCards()
+        {
+            // 必要な行数を計算
+            let rows = Math.ceil(cards.length / columns);
+
+
+            // カードの枚数に合わせてfieldの高さを変更
+            field.style.height = rows * 100 + "px";
+
+
+            // 揃ったカードは偶数枚ずつ横に並べる
+            let takenColumns = Math.floor(columns / 2) * 2;
+
+
+            // 揃ったカードに必要な行数を計算
+            let takenRows = Math.ceil(cards.length / takenColumns);
+
+
+            // takenの高さを変更
+            taken.style.height = takenRows * 100 + "px";
+
+
+            // 実際にfieldに存在するカードを並べ直す
+            for(let i = 0; i < field.children.length; i++)
+            {
+                let elm = field.children[i];
+
+
+                // 横方向の位置
+                elm.style.left = (i % columns) * 90 + "px";
+
+
+                // 縦方向の位置
+                elm.style.top = Math.floor(i / columns) * 100 + "px";
+            }
+        }
+
+
+        // ==================================================
+        // ⑩ 揃ったカードを並べ直す
+        // ==================================================
+
+        function arrangeTakenCards()
+        {
+            // 揃ったカードを偶数枚ずつ横に並べる
+            let takenColumns = Math.floor(columns / 2) * 2;
+
+
+            // takenの中にあるカードを取得
+            let takenCards = taken.children;
+
+
+            // 揃ったカードを順番に並べ直す
+            for(let i = 0; i < takenCards.length; i++)
+            {
+                // 横方向の位置
+                takenCards[i].style.left =
+                    (i % takenColumns) * 90 + "px";
+
+
+                // 縦方向の位置
+                takenCards[i].style.top =
+                    Math.floor(i / takenColumns) * 100 + "px";
+            }
+        }
+
+
+        // ==================================================
+        // ⑪ ゲームの状態を記録する変数
+        // ==================================================
+
+        // 1枚目に選んだカード
+        let first = null;
+
+
+        // 2枚目に選んだカード
+        let second = null;
+
+
+        // カードを隠すまでのタイマー
+        let timer = null;
+
+
+        // 揃ったカードの枚数
+        let mekuri = 0;
+
+
+        // ==================================================
+        // ⑫ 経過時間を表示する
+        // ==================================================
+
+        // 経過時間を10分の1秒単位で数える
+        let count = 0;
+
+
+        // 時計を表示するHTML要素を取得
+        let clock = document.getElementById("clock");
+
+
+        // 100ミリ秒ごとに時計を更新する
+        let timer2 = setInterval(function()
+        {
+            clock.innerText =
+                `経過時間:${(count++ / 10).toFixed(1)}秒`;
+
+        }, 100);
+
+
+        // ==================================================
+        // ⑬ カードをクリックしたときの処理
+        // ==================================================
+
+        function click(e)
+        {
+            // 前の2枚を隠す待ち時間中なら、
+            // その2枚をすぐに処理してから次へ進む
+            if(timer)
+            {
+                clearTimeout(timer);
+                hideCards();
+            }
+
+
+            // 今クリックされたカードを取得
+            let elm = e.target;
+
+
+            // カードの数字を表示する
+            elm.innerHTML = cards[elm.index];
+
+
+            // ------------------------------------------
+            // まだ1枚目が選ばれていない場合
+            // ------------------------------------------
+
+            if(!first)
+            {
+                first = elm;
+            }
+
+
+            // ------------------------------------------
+            // 1枚目と同じカードをもう一度クリックした場合
+            // ------------------------------------------
+
+            else if(first.index == elm.index)
+            {
+                return;
+            }
+
+
+            // ------------------------------------------
+            // 2枚目が選ばれた場合
+            // ------------------------------------------
+
+            else
+            {
+                second = elm;
+
+                // 1枚目と2枚目が同じか判定する
+                judge();
+            }
+        }
+
+
+        // ==================================================
+        // ⑭ カードを隠す・揃ったカードを移動する
+        // ==================================================
+
+        function hideCards()
+        {
+            // ------------------------------------------
+            // 2枚が同じだった場合
+            // ------------------------------------------
+
+            if(first.innerHTML == second.innerHTML)
+            {
+                // 揃った2枚をtakenへ移動する
+                taken.appendChild(first);
+                taken.appendChild(second);
+
+
+                // takenの中でカードを並べ直す
+                arrangeTakenCards();
+            }
+
+
+            // ------------------------------------------
+            // 2枚が違った場合
+            // ------------------------------------------
+
+            else
+            {
+                // 2枚の数字を消して裏返す
+                first.innerHTML = "";
+                second.innerHTML = "";
+            }
+
+
+            // 次の2枚を選べる状態に戻す
+            first = null;
+            second = null;
+            timer = null;
+        }
+
+
+        // ==================================================
+        // ⑮ 2枚のカードが揃っているか判定する
+        // ==================================================
+
+        function judge()
+        {
+            // 2枚が同じだった場合
+            if(first.innerHTML == second.innerHTML)
+            {
+                // 揃ったカードを2枚増やす
+                mekuri += 2;
+
+
+                // 揃ったカードはクリックできないようにする
+                first.onclick = null;
+                second.onclick = null;
+
+
+                // すべてのカードが揃った場合
+                if(mekuri == cards.length)
+                {
+                    // 経過時間のカウントを停止
+                    clearInterval(timer2);
+                }
+            }
+
+
+            // 1秒後にカードを隠す
+            timer = setTimeout(hideCards, 1000);
+        }
+
+    </script>
+
+
+    <!-- =========================================
+         ページ一覧
+         ========================================= -->
+
+    <div class="links">
+
+        <div class="links-title">ページ一覧</div>
+
+        <a href="index.html">トップページ</a>
+
+        <a href="factor-clock.html">素因数分解・時計</a>
+
+        <span>神経衰弱</span>
+
+    </div>
 
 </body>
+
 </html>
